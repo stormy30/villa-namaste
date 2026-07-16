@@ -608,15 +608,15 @@
       <span class="mono">✉️ coutanceauveronique7@gmail.fr</span>
       <span class="mono">📞 06 76 46 82 82</span>
     </div>
-    <form>
+    <form id="contact-form">
       <div class="form-row">
         <div>
           <label for="nom">Nom</label>
-          <input type="text" id="nom" name="nom" placeholder="Votre nom">
+          <input type="text" id="nom" name="nom" placeholder="Votre nom" required>
         </div>
         <div>
           <label for="email">Email</label>
-          <input type="email" id="email" name="email" placeholder="vous@email.com">
+          <input type="email" id="email" name="email" placeholder="vous@email.com" required>
         </div>
       </div>
       <div class="form-row">
@@ -637,11 +637,55 @@
         <label for="message">Message</label>
         <textarea id="message" name="message" placeholder="Une question, une précision..."></textarea>
       </div>
-      <button type="submit" class="form-submit">Envoyer la demande</button>
-      <span class="form-note">↳ pas encore connecté — branchement Make/Airtable à l'étape suivante</span>
+      <button type="submit" class="form-submit" id="contact-submit-btn">Envoyer la demande</button>
+      <span class="form-note" id="contact-form-status">Nous revenons vers vous sous 24h.</span>
     </form>
   </div>
 </section>
+
+<script>
+(function () {
+  var WEBHOOK_URL = "https://hook.eu1.make.com/qjthvuhf41e7dgt3kkh2u1lwfmcrkp55";
+  var form = document.getElementById('contact-form');
+  var statusEl = document.getElementById('contact-form-status');
+  var btn = document.getElementById('contact-submit-btn');
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    var payload = {
+      nom: document.getElementById('nom').value,
+      email: document.getElementById('email').value,
+      arrivee: document.getElementById('arrivee').value,
+      depart: document.getElementById('depart').value,
+      voyageurs: document.getElementById('voyageurs').value,
+      message: document.getElementById('message').value
+    };
+
+    btn.disabled = true;
+    btn.textContent = 'Envoi en cours…';
+    statusEl.textContent = '';
+
+    fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function (response) {
+        if (!response.ok) throw new Error('Erreur réseau');
+        statusEl.textContent = '✅ Votre demande a bien été envoyée. Nous revenons vers vous sous 24h.';
+        form.reset();
+      })
+      .catch(function () {
+        statusEl.textContent = "⚠️ Une erreur est survenue. Merci de nous contacter directement par email ou téléphone.";
+      })
+      .finally(function () {
+        btn.disabled = false;
+        btn.textContent = 'Envoyer la demande';
+      });
+  });
+})();
+</script>
 
 <footer>
   <span>Villa Namasté · Méjannes-lès-Alès · Cévennes, Gard</span>
