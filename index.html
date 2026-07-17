@@ -567,34 +567,89 @@
 </section>
 
 <!--
-  Flux iCal réels — à connecter via un scénario Make (fetch iCal -> Airtable -> webhook) :
-  Booking.com : https://ical.booking.com/v1/export?t=4317c4f9-9fcc-44fa-bdbe-d370ce5fde8f
-  Airbnb      : https://www.airbnb.fr/calendar/ical/567294597841707893.ics?t=8ebd67b2bc8c471abe5f3613c4e4d4e6
-  Le calendrier ci-dessous est une maquette statique en attendant ce branchement.
+  Calendrier dynamique — alimenté par le scénario Make de lecture (webhook -> Airtable "Disponibilités").
 -->
 <section id="disponibilites">
   <div class="section-head">
     <span class="section-eyebrow">03 · Disponibilités</span>
     <h2>Calendrier en temps réel</h2>
   </div>
-  <div class="cal-mock">
+  <div class="cal-mock" id="cal-mock">
     <div class="cal-head">
-      <span>AOÛT 2026</span>
-      <span class="placeholder-tag">sync Booking/Airbnb — à venir via Make</span>
-    </div>
-    <div class="cal-grid">
-      <div>1</div><div>2</div><div>3</div><div>4</div><div class="booked">5</div><div class="booked">6</div><div class="booked">7</div>
-      <div class="booked">8</div><div class="booked">9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div>
-      <div>15</div><div>16</div><div class="booked">17</div><div class="booked">18</div><div class="booked">19</div><div class="booked">20</div><div class="booked">21</div>
-      <div class="booked">22</div><div>23</div><div>24</div><div>25</div><div>26</div><div>27</div><div>28</div>
-      <div>29</div><div>30</div><div>31</div><div></div><div></div><div></div><div></div>
-    </div>
-    <div class="cal-legend">
-      <span><span class="swatch" style="background:rgba(190,127,62,0.5)"></span>Réservé</span>
-      <span><span class="swatch" style="background:rgba(85,98,74,0.25)"></span>Disponible</span>
+      <span>Chargement du calendrier…</span>
     </div>
   </div>
 </section>
+
+<script>
+(function () {
+  var READ_WEBHOOK_URL = "https://hook.eu1.make.com/u1baq22mbbxou693unnngm17tt2wm3fh";
+  var calContainer = document.getElementById('cal-mock');
+  if (!calContainer) return;
+
+  function parseDateFlexible(value) {
+    if (!value) return null;
+    var d = new Date(value);
+    if (isNaN(d.getTime())) return null;
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+
+  function getField(obj, keys) {
+    for (var i = 0; i < keys.length; i++) {
+      if (obj[keys[i]] !== undefined && obj[keys[i]] !== null && obj[keys[i]] !== '') return obj[keys[i]];
+    }
+    return null;
+  }
+
+  function renderCalendar(bookedRanges) {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = now.getMonth();
+    var monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+
+    var firstDay = new Date(year, month, 1);
+    var daysInMonth = new Date(year, month + 1, 0).getDate();
+    var startOffset = (firstDay.getDay() + 6) % 7;
+
+    function isBooked(day) {
+      var d = new Date(year, month, day);
+      for (var i = 0; i < bookedRanges.length; i++) {
+        var start = bookedRanges[i].start;
+        var end = bookedRanges[i].end;
+        if (start && end && d >= start && d < end) return true;
+      }
+      return false;
+    }
+
+    var html = '';
+    html += '<div class="cal-head"><span>' + monthNames[month].toUpperCase() + ' ' + year + '</span></div>';
+    html += '<div class="cal-grid">';
+    for (var i = 0; i < startOffset; i++) { html += '<div></div>'; }
+    for (var day = 1; day <= daysInMonth; day++) {
+      html += '<div class="' + (isBooked(day) ? 'booked' : '') + '">' + day + '</div>';
+    }
+    html += '</div>';
+    html += '<div class="cal-legend"><span><span class="swatch" style="background:rgba(190,127,62,0.5)"></span>Réservé</span><span><span class="swatch" style="background:rgba(85,98,74,0.25)"></span>Disponible</span></div>';
+
+    calContainer.innerHTML = html;
+  }
+
+  fetch(READ_WEBHOOK_URL)
+    .then(function (res) { if (!res.ok) throw new Error('network'); return res.json(); })
+    .then(function (data) {
+      var arr = Array.isArray(data) ? data : (data.array || []);
+      var ranges = arr.map(function (item) {
+        var startRaw = getField(item, ["Date arrivée", "arrivee", "Date arrivee", "start"]);
+        var endRaw = getField(item, ["Date départ", "depart", "Date depart", "end"]);
+        return { start: parseDateFlexible(startRaw), end: parseDateFlexible(endRaw) };
+      }).filter(function (r) { return r.start && r.end; });
+      renderCalendar(ranges);
+    })
+    .catch(function () {
+      calContainer.innerHTML = '<div class="cal-head"><span>Calendrier momentanément indisponible</span></div><p class="form-note">Merci de nous contacter directement pour vérifier les disponibilités.</p>';
+    });
+})();
+</script>
 
 <section id="contact" class="section-alt">
   <div class="section-head">
