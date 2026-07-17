@@ -464,7 +464,21 @@
   }
   @media (prefers-reduced-motion:reduce){
     html{scroll-behavior:auto;}
-  }
+}
+    .cal-nav-btn {
+  background: none;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+.cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+  
 </style>
 </head>
 <body>
@@ -601,38 +615,57 @@
     return null;
   }
 
-  function renderCalendar(bookedRanges) {
-    var now = new Date();
-    var year = now.getFullYear();
-    var month = now.getMonth();
-    var monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+var currentYear, currentMonth, allBookedRanges = [];
 
-    var firstDay = new Date(year, month, 1);
-    var daysInMonth = new Date(year, month + 1, 0).getDate();
-    var startOffset = (firstDay.getDay() + 6) % 7;
-
-    function isBooked(day) {
-      var d = new Date(year, month, day);
-      for (var i = 0; i < bookedRanges.length; i++) {
-        var start = bookedRanges[i].start;
-        var end = bookedRanges[i].end;
-        if (start && end && d >= start && d < end) return true;
-      }
-      return false;
-    }
-
-    var html = '';
-    html += '<div class="cal-head"><span>' + monthNames[month].toUpperCase() + ' ' + year + '</span></div>';
-    html += '<div class="cal-grid">';
-    for (var i = 0; i < startOffset; i++) { html += '<div></div>'; }
-    for (var day = 1; day <= daysInMonth; day++) {
-      html += '<div class="' + (isBooked(day) ? 'booked' : '') + '">' + day + '</div>';
-    }
-    html += '</div>';
-    html += '<div class="cal-legend"><span><span class="swatch" style="background:rgba(190,127,62,0.5)"></span>Réservé</span><span><span class="swatch" style="background:rgba(85,98,74,0.25)"></span>Disponible</span></div>';
-
-    calContainer.innerHTML = html;
+function isBooked(day, year, month) {
+  var d = new Date(year, month, day);
+  for (var i = 0; i < allBookedRanges.length; i++) {
+    var start = allBookedRanges[i].start;
+    var end = allBookedRanges[i].end;
+    if (start && end && d >= start && d < end) return true;
   }
+  return false;
+}
+
+function renderCalendar(bookedRanges) {
+  if (bookedRanges) {
+    allBookedRanges = bookedRanges;
+    var now = new Date();
+    currentYear = now.getFullYear();
+    currentMonth = now.getMonth();
+  }
+
+  var monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+  var firstDay = new Date(currentYear, currentMonth, 1);
+  var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  var startOffset = (firstDay.getDay() + 6) % 7;
+
+  var html = '';
+  html += '<div class="cal-head">';
+  html += '<button id="cal-prev" class="cal-nav-btn" type="button">◀</button>';
+  html += '<span>' + monthNames[currentMonth].toUpperCase() + ' ' + currentYear + '</span>';
+  html += '<button id="cal-next" class="cal-nav-btn" type="button">▶</button>';
+  html += '</div>';
+  html += '<div class="cal-grid">';
+  for (var i = 0; i < startOffset; i++) { html += '<div></div>'; }
+  for (var day = 1; day <= daysInMonth; day++) {
+    html += '<div class="' + (isBooked(day, currentYear, currentMonth) ? 'booked' : '') + '">' + day + '</div>';
+  }
+  html += '</div>';
+  html += '<div class="cal-legend"><span><span class="swatch" style="background:rgba(190,127,62,0.5)"></span>Réservé</span><span><span class="swatch" style="background:rgba(85,98,74,0.25)"></span>Disponible</span></div>';
+  calContainer.innerHTML = html;
+
+  document.getElementById('cal-prev').addEventListener('click', function () {
+    currentMonth--;
+    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+    renderCalendar(null);
+  });
+  document.getElementById('cal-next').addEventListener('click', function () {
+    currentMonth++;
+    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    renderCalendar(null);
+  });
+}
 
   fetch(READ_WEBHOOK_URL)
     .then(function (res) { if (!res.ok) throw new Error('network'); return res.json(); })
