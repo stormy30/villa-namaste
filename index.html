@@ -158,14 +158,17 @@
   }
   .btn-ghost:hover{background:var(--ink);color:var(--white);}
 
-  .hero-photo{
+  ..hero-photo{
     margin-top:56px;
     position:relative;
     height:clamp(280px,42vw,480px);
     border-radius:2px;
     overflow:hidden;
     background:linear-gradient(180deg, #E7DCC4 0%, #DCCBA0 38%, #C9A868 62%, #B9925A 100%);
+    background-size: cover;
+    background-position: center;
   }
+  
   .hero-photo svg{
     position:absolute;
     bottom:0;
