@@ -777,15 +777,10 @@ function renderCalendar(bookedRanges) {
         statusEl.textContent = '✅ Votre demande a bien été envoyée. Nous revenons vers vous sous 24h.';
         form.reset();
       })
-          .catch(function () {
-      var secours = DISPO_SECOURS.map(function (p) {
-        return { start: parseDateFlexible(p.debut), end: parseDateFlexible(p.fin) };
+           .catch(function () {
+        statusEl.textContent = "⚠️ Une erreur est survenue. Merci de nous contacter directement par email ou téléphone.";
       })
-        .filter(function (r) { return r.start && r.end; });
-      renderCalendar(secours);
-      var head = calContainer.querySelector('.cal-head span');
-      if (head) head.textContent += ' · mise à jour manuelle';
-    });
+      
       .finally(function () {
         btn.disabled = false;
         btn.textContent = 'Envoyer la demande';
