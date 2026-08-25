@@ -691,8 +691,13 @@ function renderCalendar(bookedRanges) {
       }).filter(function (r) { return r.start && r.end; });
       renderCalendar(ranges);
     })
-    .catch(function () {
-      calContainer.innerHTML = '<div class="cal-head"><span>Calendrier momentanément indisponible</span></div><p class="form-note">Merci de nous contacter directement pour vérifier les disponibilités.</p>';
+      .catch(function () {
+      var secours = DISPO_SECOURS.map(function (p) {
+        return { start: parseDateFlexible(p.debut), end: parseDateFlexible(p.fin) };
+      }).filter(function (r) { return r.start && r.end; });
+      renderCalendar(secours);
+      var head = calContainer.querySelector('.cal-head span');
+      if (head) head.textContent += ' · mise à jour manuelle';
     });
 })();
 </script>
