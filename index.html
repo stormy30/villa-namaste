@@ -339,6 +339,33 @@
     max-width:52ch;
   }
 
+  /* Tarifs professionnels */
+  .tarifs-pro{
+    margin-top:64px;
+    max-width:760px;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-left:4px solid var(--olive);
+    border-radius:2px;
+    padding:32px clamp(20px,4vw,40px);
+  }
+  .tarifs-pro h3{
+    font-size:clamp(22px,3vw,28px);
+    margin-bottom:10px;
+  }
+  .tarifs-pro .pro-intro{
+    color:var(--ink-soft);
+    font-size:16px;
+    margin:0 0 20px;
+    max-width:56ch;
+  }
+  .tarifs-pro .tarifs-table td, .tarifs-pro .tarifs-table th{padding:14px 12px;}
+  .tarifs-pro .btn-primary{margin-top:24px;}
+  @media (max-width:820px){
+    .tarifs-table th, .tarifs-table td{padding:12px 8px;}
+    .tarifs-table td.saison{font-size:16px;}
+  }
+
   /* Disponibilites */
   .cal-mock{
     max-width:760px;
@@ -586,7 +613,25 @@
       <tr><td class="saison">Haute saison</td><td>Juillet — Août</td><td class="prix">195 €</td><td class="prix">1 220 €</td></tr>
     </tbody>
   </table>
-  <p class="tarif-note">Séjour minimum : 1 nuit en basse et moyenne saison, 2 nuits en haute saison. Charges et ménage de fin de séjour inclus.</p>
+  <p class="tarif-note">Séjour minimum : 1 nuit en basse et moyenne saison, 2 nuits en haute saison. Charges et ménage de fin de séjour inclus. Taxe de séjour en sus : 1,32 € par adulte et par nuit (gratuite pour les moins de 18 ans).</p>
+
+  <div class="tarifs-pro" id="tarifs-pro">
+    <span class="section-eyebrow">Déplacements professionnels · Novembre — Mars</span>
+    <h3>Tarifs pros : équipes en mission</h3>
+    <p class="pro-intro">À 800 m du Parc des Expositions d'Alès Agglo et de sa zone d'activités : 2 chambres et un canapé-lit, cuisine équipée, wifi haut débit, parking privé. Plus d'espace qu'à l'hôtel, pour un prix par personne bien plus doux. En réservant en direct, vous payez moins cher que sur les plateformes.</p>
+    <table class="tarifs-table">
+      <thead>
+        <tr><th>Séjour</th><th>Tarif</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="saison">2 nuits et plus, du dimanche au jeudi</td><td class="prix">100 € / nuit</td></tr>
+        <tr><td class="saison">Semaine (7 nuits)</td><td class="prix">690 €</td></tr>
+        <tr><td class="saison">Mois (28 nuits)</td><td class="prix">2 100 €</td></tr>
+      </tbody>
+    </table>
+    <p class="tarif-note">Nuitée unique et nuits du vendredi et du samedi : tarif basse saison. Charges et ménage de fin de séjour inclus. Taxe de séjour en sus : 1,32 € par personne et par nuit. Facture fournie.</p>
+    <a class="btn-primary" href="#contact">Demander un devis pro</a>
+  </div>
 </section>
 
 <!--
